@@ -1,0 +1,80 @@
+{
+    "name": "@alenaksu/neatjs",
+    "version": "1.0.0-alpha.0",
+    "description": "NEAT (Neuroevolution of Augmenting Topologies) implementation in JavaScript",
+    "main": "dist/index.js",
+    "scripts": {
+        "start": "tsc -w src/index.ts",
+        "build": "pack build",
+        "upgrade": "npm-check",
+        "test": "ava",
+        "test:xor": "ts-node --project test/tsconfig.json experiments/xor.ts",
+        "test:trex": "parcel parcel experiments/t-rex/index.html --out-dir experiments/dist --no-cache"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/alenaksu/neatjs.git"
+    },
+    "keywords": [
+        "neat",
+        "ai",
+        "genetic",
+        "algorithm",
+        "evolutionary",
+        "javascript"
+    ],
+    "author": "alenaksu",
+    "license": "GPL-3.0-or-later",
+    "bugs": {
+        "url": "https://github.com/alenaksu/neatjs/issues"
+    },
+    "homepage": "https://github.com/alenaksu/neatjs#readme",
+    "@pika/pack": {
+        "pipeline": [
+            [
+                "@pika/plugin-ts-standard-pkg"
+            ],
+            [
+                "@pika/plugin-build-node"
+            ],
+            [
+                "@pika/plugin-build-web"
+            ]
+        ]
+    },
+    "devDependencies": {
+        "@babel/core": "^7.4.0",
+        "@babel/plugin-proposal-class-properties": "^7.4.0",
+        "@babel/plugin-transform-runtime": "^7.4.0",
+        "@babel/runtime": "^7.4.2",
+        "@pika/pack": "^0.3.5",
+        "@pika/plugin-build-node": "^0.3.14",
+        "@pika/plugin-build-web": "^0.3.14",
+        "@pika/plugin-ts-standard-pkg": "^0.3.14",
+        "@types/node": "^11.11.3",
+        "ava": "^1.2.1",
+        "cssnano": "^4.1.10",
+        "husky": "^1.3.1",
+        "less": "^3.9.0",
+        "npm-check": "^5.9.0",
+        "prettier": "1.16.4",
+        "pretty-quick": "^1.10.0",
+        "ts-node": "^8.0.3",
+        "typescript": "^3.3.3333"
+    },
+    "ava": {
+        "compileEnhancements": false,
+        "extensions": [
+            "ts"
+        ],
+        "require": [
+            "ts-node/register"
+        ]
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "pretty-quick --staged"
+        }
+    },
+    "dependencies": {}
+}

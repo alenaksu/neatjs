@@ -1,0 +1,24 @@
+{
+    "presets": [
+        [
+            "@babel/preset-env",
+            {
+                "targets": {
+                    "esmodules": true,
+                },
+                "spec": true,
+                "loose": true
+            }
+        ]
+    ],
+    "plugins": [
+        [
+            "@babel/plugin-transform-runtime",
+            {
+                "regenerator": true,
+                "useESModules": true
+            }
+        ],
+        ["@babel/plugin-proposal-class-properties"]
+    ]
+}
