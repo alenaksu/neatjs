@@ -2,6 +2,8 @@
 
 A JavaScript implementation of Kenneth Stanley's NEAT
 
+Demo: https://alenaksu.github.io/neatjs/
+
 ## Work in progress...
 
 ## References
