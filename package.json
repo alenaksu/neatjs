@@ -7,9 +7,10 @@
         "start": "tsc -w src/index.ts",
         "build": "pack build",
         "upgrade": "npm-check",
+        "docs": "rm -rf docs/* && parcel build experiments/t-rex/index.html --no-source-maps --public-url /neatjs/ --out-dir docs/",
         "test": "ava",
         "test:xor": "ts-node --project test/tsconfig.json experiments/xor.ts",
-        "test:trex": "parcel parcel experiments/t-rex/index.html --out-dir experiments/dist --no-cache"
+        "test:trex": "parcel experiments/t-rex/index.html --out-dir experiments/dist --no-cache --no-hmr"
     },
     "repository": {
         "type": "git",
