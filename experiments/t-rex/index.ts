@@ -7,6 +7,8 @@ import {
     Population
 } from '../../src';
 
+import vis from 'vis';
+
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from './game/constants';
 import { Runner } from './game';
 
@@ -26,7 +28,7 @@ function convertStateToVector(state) {
 
 let config: NEATConfig = {
     ...DefaultConfig,
-    populationSize: 500,
+    populationSize: 1,
     // fitnessThreshold: 15,
     adjustCompatibilityThreshold: true,
     compatibilityModifierTarget: 50,
@@ -37,7 +39,8 @@ let config: NEATConfig = {
     compatibilityThreshold: 3,
     // genomeWeightPerturbated: 0.9
     // mutationPower: 10,
-    // mutateAddNodeProbability: 0.1,
+    mutateAddConnectionProbability: 1,
+    mutateAddNodeProbability: 1,
     feedForwardOnly: false
     // dropoffAge: 25
 };
@@ -83,7 +86,7 @@ organisms: ${pop.organisms.length}
 species: ${pop.species.length}
 fitness: ${champ.originalFitness.toFixed(6)}
     `;
-    console.log(Array.from(champ.connections.values()));
+
     champ.getNetwork().neurons.values();
     tRexes.tRexes.forEach((tRex, i) => {
         tRex.organism = pop.organisms[i];
@@ -91,6 +94,8 @@ fitness: ${champ.originalFitness.toFixed(6)}
     });
 
     first = false;
+
+    requestAnimationFrame(updateGraph);
 }
 
 function loss(box1, box2) {
@@ -118,5 +123,123 @@ let runner = new Runner('#t-rex', {
     onRunning: handleRunning
 });
 
+const btnSave = document.querySelector('#save') as HTMLButtonElement;
+btnSave.addEventListener('click', e => {
+    e.preventDefault();
+    const a = document.createElement('a');
+    a.download = 'network.json';
+    a.href = URL.createObjectURL(
+        new Blob(
+            [
+                JSON.stringify(
+                    pop
+                        .getSuperChamp()
+                        .getNetwork()
+                        .toJSON()
+                )
+            ],
+            { type: 'application/json' }
+        )
+    );
+    a.click();
+});
 (<any>window).runner = runner;
 (<any>window).population = pop;
+
+function updateGraph() {
+    const network = pop.getSuperChamp().getNetwork();
+
+    let maxDepth = 0;
+    const stack = network.inputs.map(i => [0, i]);
+    const nodes = [],
+        edges = [];
+    while (stack.length) {
+        const [level, { id, type, out }] = stack.shift() as any;
+
+        maxDepth = Math.max(maxDepth, level);
+
+        if (nodes.find(n => n.id === id)) {
+            nodes.find(n => n.id === id).level = level + 1;
+            maxDepth = Math.max(maxDepth, level + 1);
+            continue;
+        }
+
+        nodes.push({
+            id,
+            type,
+            label: type !== NodeType.Hidden ? id : '',
+            group: type,
+            level: level
+        });
+
+        stack.push(
+            ...out.map(link => {
+                edges.push({
+                    from: link.from.id,
+                    to: link.to.id,
+                    value: link.weight,
+                    label: link.weight.toFixed(2)
+                });
+                return [level + 1, link.to];
+            })
+        );
+    }
+
+    nodes.forEach(node => {
+        if (node.type === NodeType.Output) {
+            node.level = maxDepth + 1;
+        }
+    });
+
+    let container = document.getElementById('cy');
+    let options = {
+        edges: {
+            color: {
+                opacity: 0.6
+            },
+            scaling: {
+                min: 0.5,
+                max: 10
+            },
+            arrows: {
+                to: {
+                    enabled: true,
+                    scaleFactor: 0.1,
+                    type: 'arrow'
+                }
+            },
+            font: {
+                color: '#333',
+                align: 'top'
+            }
+        },
+        nodes: {
+            shape: 'dot'
+        },
+        autoResize: false,
+        layout: {
+            hierarchical: {
+                direction: 'LR',
+                sortMethod: 'directed'
+            }
+        },
+        interaction: {
+            dragNodes: false,
+            dragView: false,
+            multiselect: false,
+            navigationButtons: false,
+            selectable: false,
+            zoomView: false
+        }
+    };
+    let net = new vis.Network(
+        container,
+        {
+            nodes,
+            edges
+        },
+        options
+    );
+}
+
+requestAnimationFrame(updateGraph);

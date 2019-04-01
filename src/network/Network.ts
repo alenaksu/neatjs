@@ -1,6 +1,7 @@
 import { NodeType } from '../types';
 import { sigmoid } from '../utils';
 import Neuron from './Neuron';
+import Link from './Link';
 
 export default class Network {
     inputs: Neuron[];
@@ -8,14 +9,15 @@ export default class Network {
     neurons: Map<string, Neuron> = new Map();
     activation: Function = sigmoid;
 
-    constructor(neurons: Neuron[]) {
+    constructor(neurons: any[], links: any[]) {
         const inputs: Array<Neuron> = [],
             outputs: Array<Neuron> = [];
 
-        neurons.forEach(neuron => {
-            this.neurons.set(neuron.id, neuron);
+        neurons.forEach(({ type, id }) => {
+            const neuron = new Neuron(type, id);
+            this.neurons.set(id, neuron);
 
-            switch (neuron.type) {
+            switch (type) {
                 case NodeType.Bias:
                 case NodeType.Input:
                     inputs.push(neuron);
@@ -26,8 +28,45 @@ export default class Network {
             }
         });
 
+        links.forEach(({ from, to, weight, enabled }) => {
+            const fromNeuron = this.neurons.get(from)!;
+            const toNeuron = this.neurons.get(to)!;
+            const link = new Link(fromNeuron, toNeuron, weight, enabled);
+
+            fromNeuron.out.push(link);
+            toNeuron.in.push(link);
+        });
+
         this.inputs = inputs;
         this.outputs = outputs;
+    }
+
+    toJSON() {
+        const neruons = this.neurons;
+        const neurons: any[] = [],
+            links: any[] = [];
+
+        neruons.forEach(({ id, bias, type, out }) => {
+            neurons.push({
+                id,
+                bias,
+                type
+            });
+            links.push(
+                ...out.map(({ from, to, weight, enabled }) => ({
+                    from: from.id,
+                    to: to.id,
+                    weight,
+                    enabled
+                }))
+            );
+        });
+
+        return {
+            // config,
+            neurons,
+            links
+        };
     }
 
     /**
@@ -61,16 +100,20 @@ export default class Network {
             if (done.has(neuron)) continue;
 
             if (neuron.in.length) {
-                const dotProduct = neuron.in.reduce(
-                    (sum, link) => sum + link.from.value * link.weight,
-                    0
-                );
+                const dotProduct = neuron.in
+                    .filter(l => l.enabled)
+                    .reduce(
+                        (sum, link) => sum + link.from.value * link.weight,
+                        0
+                    );
 
                 state[neuron.id] = (state[neuron.id] || 0) + dotProduct;
             }
 
             done.add(neuron);
-            stack.push(...neuron.out.map(link => link.to));
+            stack.push(
+                ...neuron.out.filter(l => l.enabled).map(link => link.to)
+            );
         }
 
         this.neurons.forEach(neuron => {

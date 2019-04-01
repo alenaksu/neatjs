@@ -1,6 +1,6 @@
 import { Genome } from './Genome';
 import { Species } from './Species';
-import { Link, Neuron, Network } from '../network';
+import { Network } from '../network';
 import { ascending } from '../utils';
 import { ConnectionGene } from './ConnectionGene';
 
@@ -34,6 +34,8 @@ export class Organism extends Genome {
      */
     expectedOffspring: number = 0;
 
+    private network?: Network;
+
     constructor(
         // innovation: Iterator<number>,
         fitness: number = 0,
@@ -54,24 +56,26 @@ export class Organism extends Genome {
     }
 
     getNetwork() {
-        const connections = this.getConnections();
-        const neurons: Map<string, Neuron> = new Map();
+        if (!this.network) {
+            const nodes = Array.from(this.nodes.values()).map(
+                ({ type, id }) => ({
+                    type,
+                    id
+                })
+            );
 
-        this.nodes.forEach(node => {
-            neurons.set(node.id, new Neuron(node.type, node.id));
-        });
+            const connections = Array.from(this.connections.values())
+                .sort(ascending((i: ConnectionGene) => i.innovation))
+                .map(({ from, to, weight, enabled }) => ({
+                    from: from.id,
+                    to: to.id,
+                    weight: weight,
+                    enabled: enabled
+                }));
 
-        connections
-            .sort(ascending((i: ConnectionGene) => i.innovation))
-            .forEach(gene => {
-                const from = neurons.get(gene.from.id)!;
-                const to = neurons.get(gene.to.id)!;
-                const link = new Link(from, to, gene.weight, gene.enabled);
+            this.network = new Network(nodes, connections);
+        }
 
-                from.out.push(link);
-                to.in.push(link);
-            });
-
-        return new Network(Array.from(neurons.values()));
+        return this.network!;
     }
 }

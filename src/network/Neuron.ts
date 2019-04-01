@@ -7,10 +7,7 @@ export default class Neuron {
     bias: number = 0;
     in: Array<Link> = [];
     out: Array<Link> = [];
-    isActive: boolean = false;
-    activationCount: number = 0;
     type: NodeType;
-    sum: number = 0;
 
     constructor(type: NodeType, id: string) {
         this.type = type;
