@@ -6,6 +6,7 @@
     "scripts": {
         "start": "tsc -w src/index.ts",
         "build": "pack build",
+        "publish": "pack publish",
         "upgrade": "npm-check",
         "docs": "rm -rf docs/* && parcel build experiments/t-rex/index.html --no-source-maps --public-url /neatjs/ --out-dir docs/",
         "test": "ava",
