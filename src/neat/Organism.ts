@@ -1,6 +1,6 @@
 import { Genome } from './Genome';
 import { Species } from './Species';
-import { Network } from '../network';
+import Network from '../network/Network';
 import { ascending } from '../utils';
 import { ConnectionGene } from './ConnectionGene';
 
