@@ -176,7 +176,6 @@ function updateGraph() {
                     from: link.from.id,
                     to: link.to.id,
                     value: link.weight,
-                    // label: link.weight.toFixed(2)
                     color: !link.enabled
                         ? {
                               color: '#333',
