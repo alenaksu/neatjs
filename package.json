@@ -1,6 +1,6 @@
 {
     "name": "@alenaksu/neatjs",
-    "version": "1.0.0-alpha.0",
+    "version": "1.0.0-alpha.1",
     "description": "NEAT (Neuroevolution of Augmenting Topologies) implementation in JavaScript",
     "main": "dist/index.js",
     "scripts": {
