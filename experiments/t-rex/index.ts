@@ -28,7 +28,7 @@ function convertStateToVector(state) {
 
 let config: NEATConfig = {
     ...DefaultConfig,
-    populationSize: 1,
+    populationSize: 300,
     // fitnessThreshold: 15,
     adjustCompatibilityThreshold: true,
     compatibilityModifierTarget: 50,
@@ -39,8 +39,8 @@ let config: NEATConfig = {
     compatibilityThreshold: 3,
     // genomeWeightPerturbated: 0.9
     // mutationPower: 10,
-    mutateAddConnectionProbability: 1,
-    mutateAddNodeProbability: 1,
+    // mutateAddConnectionProbability: 1,
+    // mutateAddNodeProbability: 1,
     feedForwardOnly: false
     // dropoffAge: 25
 };
@@ -177,8 +177,8 @@ function updateGraph() {
                 edges.push({
                     from: link.from.id,
                     to: link.to.id,
-                    value: link.weight,
-                    label: link.weight.toFixed(2)
+                    value: link.weight
+                    // label: link.weight.toFixed(2)
                 });
                 return [level + 1, link.to];
             })
