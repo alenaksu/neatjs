@@ -16,7 +16,6 @@ function convertStateToVector(state) {
     if (state) {
         return [
             state.distance / CANVAS_WIDTH,
-            state.obstacleX / CANVAS_WIDTH,
             state.obstacleY / CANVAS_HEIGHT,
             state.obstacleWidth / CANVAS_WIDTH,
             state.obstacleHeight / CANVAS_HEIGHT,
@@ -46,8 +45,7 @@ let config: NEATConfig = {
 };
 
 let nodes = [
-    new NodeGene(NodeType.Input, 'distance'),
-    new NodeGene(NodeType.Input, 'obstacleX'),
+    new NodeGene(NodeType.Input, 'obstacleDistance'),
     new NodeGene(NodeType.Input, 'obstacleY'),
     new NodeGene(NodeType.Input, 'obstacleWidth'),
     new NodeGene(NodeType.Input, 'obstacleHeight'),
@@ -62,8 +60,8 @@ nodes
     .filter(n => n.type !== NodeType.Output)
     .forEach(n => {
         connections.push(
-            new ConnectionGene(config.innovation.next().value, n, nodes[6]),
-            new ConnectionGene(config.innovation.next().value, n, nodes[7])
+            new ConnectionGene(config.innovation.next().value, n, nodes[5]),
+            new ConnectionGene(config.innovation.next().value, n, nodes[6])
         );
     });
 
@@ -177,8 +175,14 @@ function updateGraph() {
                 edges.push({
                     from: link.from.id,
                     to: link.to.id,
-                    value: link.weight
+                    value: link.weight,
                     // label: link.weight.toFixed(2)
+                    color: !link.enabled
+                        ? {
+                              color: '#333',
+                              opacity: 0.3
+                          }
+                        : undefined
                 });
                 return [level + 1, link.to];
             })
