@@ -15,13 +15,13 @@ const testData: Array<[[number, number, number], number]> = [
 
 let config: NEATConfig = {
     ...DefaultConfig,
-    populationSize: 500,
+    populationSize: 1500,
     fitnessThreshold: 15.8,
     adjustCompatibilityThreshold: true,
-    compatibilityModifierTarget: 30,
-    feedForwardOnly: false
-    // excessCoefficient: 1 / 20,
-    // disjointCoefficient: 1 / 20,
+    compatibilityModifierTarget: 100,
+    feedForwardOnly: true
+    // excessCoefficient: 0.001,
+    // disjointCoefficient: 0.001,
     // weightDifferenceCoefficient: 2,
     // compatibilityThreshold: 4,
     // genomeWeightPerturbated: 0.9
@@ -31,19 +31,18 @@ let config: NEATConfig = {
 let nodes = [
     new NodeGene(NodeType.Input, '0'),
     new NodeGene(NodeType.Input, '1'),
-    new NodeGene(NodeType.Bias, 'bias'),
+    // new NodeGene(NodeType.Bias, 'bias'),
     new NodeGene(NodeType.Output, 'output')
 ];
 
 let connections = [
-    new ConnectionGene(config.innovation.next().value, nodes[0], nodes[3]),
-    new ConnectionGene(config.innovation.next().value, nodes[1], nodes[3]),
-    new ConnectionGene(
-        config.innovation.next().value,
-        nodes[2],
-        nodes[3]
-        // 1
-    )
+    new ConnectionGene(nodes[0], nodes[2]),
+    new ConnectionGene(nodes[1], nodes[2])
+    // new ConnectionGene(
+    //     nodes[2],
+    //     nodes[3]
+    //     // 1
+    // )
 ];
 
 let lastGeneration = 0;
@@ -70,7 +69,7 @@ const computeFitness = function(
 
     testData.forEach(([inputs, expected]) => {
         const [output] = network.activate(inputs);
-        fitness -= Math.abs(output.value - expected);
+        fitness -= Math.abs(output - expected);
     });
 
     return fitness ** 2;
@@ -82,7 +81,7 @@ let avgGen = 0,
     avgConnections = 0,
     avgSpecies = 0,
     failures = 0;
-const testRun = 60;
+const testRun = 30;
 
 const runTest = async () => {
     console.log('Running...');

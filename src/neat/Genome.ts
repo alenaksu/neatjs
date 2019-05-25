@@ -54,7 +54,8 @@ export class Genome {
         );
     }
 
-    addConnection(connection: ConnectionGene) {
+    addConnection(config: NEATConfig, connection: ConnectionGene) {
+        connection.innovation = config.innovation.next().value;
         this.connections.set(connection.innovation, connection);
     }
 
@@ -92,7 +93,6 @@ export class Genome {
             );
 
             const connection = new ConnectionGene(
-                config.innovation.next().value,
                 form,
                 to,
                 rnd(config.mutationPower, -config.mutationPower)
@@ -105,7 +105,7 @@ export class Genome {
                     !isRecurrent(connection, connections));
 
             if (isValid) {
-                this.addConnection(connection);
+                this.addConnection(config, connection);
                 return;
             }
         }
@@ -122,20 +122,10 @@ export class Genome {
 
         connection.disable();
 
+        this.addConnection(config, new ConnectionGene(connection.from, node));
         this.addConnection(
-            new ConnectionGene(
-                config.innovation.next().value,
-                connection.from,
-                node
-            )
-        );
-        this.addConnection(
-            new ConnectionGene(
-                config.innovation.next().value,
-                node,
-                connection.to,
-                connection.weight
-            )
+            config,
+            new ConnectionGene(node, connection.to, connection.weight)
         );
         this.addNode(node);
     }
