@@ -11,7 +11,8 @@
         "docs": "rm -rf docs/* && parcel build experiments/t-rex/index.html --no-source-maps --public-url /neatjs/ --out-dir docs/",
         "test": "TS_NODE_PROJECT=test/tsconfig.json ava",
         "test:xor": "ts-node --project experiments/tsconfig.json experiments/xor.ts",
-        "test:trex": "parcel experiments/t-rex/index.html --out-dir experiments/dist --no-cache --no-hmr"
+        "test:trex": "parcel experiments/t-rex/index.html --out-dir experiments/dist --no-cache --no-hmr",
+        "version": "npm run build"
     },
     "repository": {
         "type": "git",
