@@ -8,11 +8,11 @@ export class ConnectionGene {
     innovation: number;
 
     constructor(
-        innovation: number = 0,
         form: NodeGene,
         to: NodeGene,
         weight: number = 1,
-        enabled: boolean = true
+        enabled: boolean = true,
+        innovation: number = 0
     ) {
         this.from = form;
         this.to = to;
@@ -27,11 +27,11 @@ export class ConnectionGene {
 
     copy(): ConnectionGene {
         return new ConnectionGene(
-            this.innovation,
             this.from,
             this.to,
             this.weight,
-            this.enabled
+            this.enabled,
+            this.innovation
         );
     }
 }

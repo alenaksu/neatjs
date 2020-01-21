@@ -8,6 +8,8 @@ export default class Network {
     outputs: Neuron[];
     neurons: Map<string, Neuron> = new Map();
     activation: Function = sigmoid;
+    state: [any, any] = [{}, {}];
+    links: any;
 
     constructor(neurons: any[], links: any[]) {
         const inputs: Array<Neuron> = [],
@@ -26,16 +28,21 @@ export default class Network {
                     outputs.push(neuron);
                     break;
             }
+
+            this.state[0][neuron.id] = 0;
+            this.state[1][neuron.id] = 0;
         });
 
-        links.forEach(({ from, to, weight, enabled }) => {
-            const fromNeuron = this.neurons.get(from)!;
-            const toNeuron = this.neurons.get(to)!;
-            const link = new Link(fromNeuron, toNeuron, weight, enabled);
+        links
+            .filter(({ enabled }) => enabled)
+            .forEach(({ from, to, weight, enabled }) => {
+                const fromNeuron = this.neurons.get(from)!;
+                const toNeuron = this.neurons.get(to)!;
+                const link = new Link(fromNeuron, toNeuron, weight, enabled);
 
-            fromNeuron.out.push(link);
-            toNeuron.in.push(link);
-        });
+                fromNeuron.out.push(link);
+                toNeuron.in.push(link);
+            });
 
         this.inputs = inputs;
         this.outputs = outputs;
@@ -74,53 +81,36 @@ export default class Network {
      * @param inputs
      */
     activate(inputs: number[]) {
+        const [state0, state1] = this.state;
         this.inputs.map((input, i) => {
-            input.value = inputs[i];
+            state0[input.id] = inputs[i];
+            state1[input.id] = inputs[i];
         });
-
-        // TODO add hebbian learning
-        // https://en.wikibooks.org/wiki/Artificial_Neural_Networks/Hebbian_Learning
-        // https://apaszke.github.io/lstm-explained.html
-
-        // neurons.forEach(neuron => {
-        //     const dotProduct = neuron.in.reduce(
-        //         (sum, link) => sum + link.from.value * link.weight,
-        //         neuron.value
-        //     );
-        //     neuron.value = this.activation(neuron.bias + dotProduct);
-        // });
-        // return this.outputs;
 
         const done = new Set();
         const stack: Array<Neuron> = [...this.inputs];
-        const state: any = {};
         while (stack.length) {
             const neuron: Neuron = stack.shift()!;
 
             if (done.has(neuron)) continue;
 
             if (neuron.in.length) {
-                const dotProduct = neuron.in
-                    .filter(l => l.enabled)
-                    .reduce(
-                        (sum, link) => sum + link.from.value * link.weight,
-                        0
-                    );
+                const dotProduct = neuron.in.reduce(
+                    (sum, link) => (sum + state0[link.from.id]) * link.weight,
+                    0
+                );
 
-                state[neuron.id] = (state[neuron.id] || 0) + dotProduct;
+                state1[neuron.id] = this.activation(dotProduct + neuron.bias);
             }
-
             done.add(neuron);
             stack.push(
-                ...neuron.out.filter(l => l.enabled).map(link => link.to)
+                ...neuron.out
+                    .filter(l => stack.indexOf(l.to) === -1)
+                    .map(link => link.to)
             );
         }
 
-        this.neurons.forEach(neuron => {
-            if (neuron.id in state)
-                neuron.value = this.activation(state[neuron.id] + neuron.bias);
-        });
-
-        return this.outputs;
+        this.state.reverse();
+        return this.outputs.map(output => state1[output.id]);
     }
 }

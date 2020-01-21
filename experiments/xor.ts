@@ -15,35 +15,34 @@ const testData: Array<[[number, number, number], number]> = [
 
 let config: NEATConfig = {
     ...DefaultConfig,
-    populationSize: 500,
-    fitnessThreshold: 15.8,
+    populationSize: 1500,
+    fitnessThreshold: 15.9,
     adjustCompatibilityThreshold: true,
     compatibilityModifierTarget: 30,
-    feedForwardOnly: false
-    // excessCoefficient: 1 / 20,
-    // disjointCoefficient: 1 / 20,
-    // weightDifferenceCoefficient: 2,
+    feedForwardOnly: true,
+    excessCoefficient: 2,
+    disjointCoefficient: 0.5,
+    weightDifferenceCoefficient: 1
     // compatibilityThreshold: 4,
-    // genomeWeightPerturbated: 0.9
-    // dropoffAge: 5
+    // genomeWeightPerturbated: 0.9,
+    // dropoffAge: 100
 };
 
 let nodes = [
     new NodeGene(NodeType.Input, '0'),
     new NodeGene(NodeType.Input, '1'),
-    new NodeGene(NodeType.Bias, 'bias'),
+    // new NodeGene(NodeType.Bias, 'bias'),
     new NodeGene(NodeType.Output, 'output')
 ];
 
 let connections = [
-    new ConnectionGene(config.innovation.next().value, nodes[0], nodes[3]),
-    new ConnectionGene(config.innovation.next().value, nodes[1], nodes[3]),
-    new ConnectionGene(
-        config.innovation.next().value,
-        nodes[2],
-        nodes[3]
-        // 1
-    )
+    new ConnectionGene(nodes[0], nodes[2]),
+    new ConnectionGene(nodes[1], nodes[2])
+    // new ConnectionGene(
+    //     nodes[2],
+    //     nodes[3]
+    //     // 1
+    // )
 ];
 
 let lastGeneration = 0;
@@ -52,25 +51,12 @@ const computeFitness = function(
     organism: Organism,
     population: Population
 ) {
-    // const pop = population!;
-
-    // if (lastGeneration !== organism.generation) {
-    //     console.log('generation', organism.generation);
-    //     console.log('--------------');
-    //     console.log('organisms', pop.organisms.length);
-    //     console.log('species', pop.species.length);
-    //     console.log('fitness', pop.getSuperChamp().fitness);
-    //     console.log('');
-
-    //     lastGeneration = organism.generation;
-    // }
-
     let fitness = 4;
     testData.sort(() => Math.random() - 0.5);
 
     testData.forEach(([inputs, expected]) => {
         const [output] = network.activate(inputs);
-        fitness -= Math.abs(output.value - expected);
+        fitness -= Math.abs(output - expected);
     });
 
     return fitness ** 2;
@@ -82,7 +68,7 @@ let avgGen = 0,
     avgConnections = 0,
     avgSpecies = 0,
     failures = 0;
-const testRun = 60;
+const testRun = 30;
 
 const runTest = async () => {
     console.log('Running...');
@@ -94,35 +80,6 @@ const runTest = async () => {
         await pop
             .run(computeFitness, 300)
             .then(org => {
-                // console.log('winner');
-                // console.log('--------------');
-                // console.log('fitness', org.fitness);
-                // console.log('generation', org.generation);
-                // console.log('nodes', org.nodes.size);
-                // console.log('connections', org.connections.size);
-                // console.log('');
-
-                // let f = 4;
-                // const net = org.getNetwork();
-                // testData.forEach(([inputs, expected]) => {
-                //     const [output] = net.activate(inputs);
-                //     console.log(
-                //         `input: \t\t${inputs.join()}\nexpected: \t\t${expected}\nresult: \t\t${Math.round(
-                //             output.value
-                //         )}\n`
-                //     );
-
-                //     f -= Math.abs(output.value - expected);
-                // });
-                // console.log('fitness:', f ** 2);
-                // console.log(
-                //     JSON.stringify(
-                //         Array.from(org.connections.values()),
-                //         null,
-                //         4
-                //     )
-                // );
-
                 if (org.fitness > 16) throw JSON.stringify(org);
 
                 avgGen += org.generation;

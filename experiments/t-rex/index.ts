@@ -30,12 +30,12 @@ let config: NEATConfig = {
     populationSize: 300,
     // fitnessThreshold: 15,
     adjustCompatibilityThreshold: true,
-    compatibilityModifierTarget: 50,
+    compatibilityModifierTarget: 30,
     // survivalThreshold: 0.2,
     // excessCoefficient: 1 / 20,
     // disjointCoefficient: 1 / 20,
     // weightDifferenceCoefficient: 2,
-    compatibilityThreshold: 3,
+    // compatibilityThreshold: 3,
     // genomeWeightPerturbated: 0.9
     // mutationPower: 10,
     // mutateAddConnectionProbability: 1,
@@ -60,8 +60,8 @@ nodes
     .filter(n => n.type !== NodeType.Output)
     .forEach(n => {
         connections.push(
-            new ConnectionGene(config.innovation.next().value, n, nodes[5]),
-            new ConnectionGene(config.innovation.next().value, n, nodes[6])
+            new ConnectionGene(n, nodes[5]),
+            new ConnectionGene(n, nodes[6])
         );
     });
 
@@ -110,7 +110,7 @@ function handleCrash({ tRex, state, collision }) {
 function handleRunning({ tRex, state }: { tRex: any; state: State }) {
     let outputs = tRex.network.activate(convertStateToVector(state));
 
-    return outputs.map(o => !!Math.round(o.value));
+    return outputs.map(o => !!Math.round(o));
 }
 
 const stats = document.querySelector('.stats');

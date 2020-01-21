@@ -33,7 +33,9 @@ export class Population {
         const organism = new Organism();
 
         nodes.forEach(organism.addNode.bind(organism));
-        connections.forEach(organism.addConnection.bind(organism));
+        connections.forEach(connection =>
+            organism.addConnection(config, connection)
+        );
 
         const size = config.populationSize;
         for (let i = 0; i < size; i++) {

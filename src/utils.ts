@@ -209,8 +209,8 @@ export function crossover(
                 hConnection && lConnection
                     ? // Matching gene
                       randomBool() &&
-                      (config.feedForwardOnly &&
-                          !isRecurrent(hConnection, child.getConnections()))
+                      config.feedForwardOnly &&
+                          !isRecurrent(hConnection, child.getConnections())
                         ? hConnection.copy()
                         : lConnection.copy()
                     : // excess/disjoint
@@ -263,7 +263,7 @@ export function mutateGenome(config: NEATConfig, organism: Organism) {
  * @param sortedSpecies A sorted set of species
  */
 export function getRandomSpecies(sortedSpecies: Species[]) {
-    const random = Math.min(Math.round(gaussian().next().value), 1);
+    const random = Math.min(Math.round(<number>gaussian().next().value), 1);
     const index = wrapNumber(0, sortedSpecies.length - 1, random);
     // const multiplier = Math.min(gaussian().next().value / 4, 1);
     // const index = Math.floor(multiplier * (species.length - 1) + 0.5);
@@ -349,4 +349,63 @@ export const isOutput = (gene: { type: NodeType }) =>
  */
 export function* Innovation(i: number = 0): IterableIterator<number> {
     while (true) yield i++;
+}
+
+/**
+ * Creates a genome with the specified topology
+ * @param config
+ * @param topology
+ */
+export function createGenome(
+    config: NEATConfig,
+    {
+        input,
+        hidden,
+        output
+    }: {
+        input: number;
+        hidden: Array<number>;
+        output: number;
+    }
+) {
+    const inputNodes: NodeGene[] = [],
+        outputNodes: NodeGene[] = [],
+        hiddenNodes: NodeGene[] = [],
+        connections: ConnectionGene[] = [];
+
+    for (let i = 0; i < output; i++) {
+        outputNodes.push(new NodeGene(NodeType.Output));
+    }
+
+    for (let i = 0; i < input; i++) {
+        const node = new NodeGene(NodeType.Input);
+        inputNodes.push(node);
+    }
+
+    let lastLayer = inputNodes;
+    for (let k = 0; k < hidden.length; k++) {
+        const layer: NodeGene[] = [];
+        for (let i = 0; i < hidden[k]; i++) {
+            const hiddenNode = new NodeGene(NodeType.Hidden);
+            hiddenNodes.push(hiddenNode);
+            layer.push(hiddenNode);
+
+            connections.push(new ConnectionGene(hiddenNode, hiddenNode));
+
+            lastLayer.forEach(from => {
+                connections.push(new ConnectionGene(from, hiddenNode));
+            });
+        }
+        lastLayer = layer;
+    }
+
+    outputNodes.forEach(output => {
+        lastLayer.forEach(from => {
+            connections.push(new ConnectionGene(from, output));
+        });
+    });
+
+    const nodes = [...inputNodes, ...hiddenNodes, ...outputNodes];
+
+    return { nodes, connections };
 }
