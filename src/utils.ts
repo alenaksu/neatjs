@@ -209,8 +209,8 @@ export function crossover(
                 hConnection && lConnection
                     ? // Matching gene
                       randomBool() &&
-                      (config.feedForwardOnly &&
-                          !isRecurrent(hConnection, child.getConnections()))
+                      config.feedForwardOnly &&
+                          !isRecurrent(hConnection, child.getConnections())
                         ? hConnection.copy()
                         : lConnection.copy()
                     : // excess/disjoint
@@ -263,7 +263,7 @@ export function mutateGenome(config: NEATConfig, organism: Organism) {
  * @param sortedSpecies A sorted set of species
  */
 export function getRandomSpecies(sortedSpecies: Species[]) {
-    const random = Math.min(Math.round(gaussian().next().value), 1);
+    const random = Math.min(Math.round(<number>gaussian().next().value), 1);
     const index = wrapNumber(0, sortedSpecies.length - 1, random);
     // const multiplier = Math.min(gaussian().next().value / 4, 1);
     // const index = Math.floor(multiplier * (species.length - 1) + 0.5);

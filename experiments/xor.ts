@@ -16,16 +16,16 @@ const testData: Array<[[number, number, number], number]> = [
 let config: NEATConfig = {
     ...DefaultConfig,
     populationSize: 1500,
-    fitnessThreshold: 15.8,
+    fitnessThreshold: 15.9,
     adjustCompatibilityThreshold: true,
-    compatibilityModifierTarget: 100,
-    feedForwardOnly: true
-    // excessCoefficient: 0.001,
-    // disjointCoefficient: 0.001,
-    // weightDifferenceCoefficient: 2,
+    compatibilityModifierTarget: 30,
+    feedForwardOnly: true,
+    excessCoefficient: 2,
+    disjointCoefficient: 0.5,
+    weightDifferenceCoefficient: 1
     // compatibilityThreshold: 4,
-    // genomeWeightPerturbated: 0.9
-    // dropoffAge: 5
+    // genomeWeightPerturbated: 0.9,
+    // dropoffAge: 100
 };
 
 let nodes = [
@@ -51,19 +51,6 @@ const computeFitness = function(
     organism: Organism,
     population: Population
 ) {
-    // const pop = population!;
-
-    // if (lastGeneration !== organism.generation) {
-    //     console.log('generation', organism.generation);
-    //     console.log('--------------');
-    //     console.log('organisms', pop.organisms.length);
-    //     console.log('species', pop.species.length);
-    //     console.log('fitness', pop.getSuperChamp().fitness);
-    //     console.log('');
-
-    //     lastGeneration = organism.generation;
-    // }
-
     let fitness = 4;
     testData.sort(() => Math.random() - 0.5);
 
@@ -93,35 +80,6 @@ const runTest = async () => {
         await pop
             .run(computeFitness, 300)
             .then(org => {
-                // console.log('winner');
-                // console.log('--------------');
-                // console.log('fitness', org.fitness);
-                // console.log('generation', org.generation);
-                // console.log('nodes', org.nodes.size);
-                // console.log('connections', org.connections.size);
-                // console.log('');
-
-                // let f = 4;
-                // const net = org.getNetwork();
-                // testData.forEach(([inputs, expected]) => {
-                //     const [output] = net.activate(inputs);
-                //     console.log(
-                //         `input: \t\t${inputs.join()}\nexpected: \t\t${expected}\nresult: \t\t${Math.round(
-                //             output.value
-                //         )}\n`
-                //     );
-
-                //     f -= Math.abs(output.value - expected);
-                // });
-                // console.log('fitness:', f ** 2);
-                // console.log(
-                //     JSON.stringify(
-                //         Array.from(org.connections.values()),
-                //         null,
-                //         4
-                //     )
-                // );
-
                 if (org.fitness > 16) throw JSON.stringify(org);
 
                 avgGen += org.generation;
